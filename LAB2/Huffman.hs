@@ -6,7 +6,7 @@ data HuffmanTree = HuffmanLeaf Char | HuffmanBranch HuffmanTree HuffmanTree deri
 data WeightedTree = WeightedLeaf Integer Char | WeightedBranch Integer WeightedTree WeightedTree deriving (Show)
 
 statistics :: String -> [(Integer, Char)]
-statistics str = map (\x -> (genericLength x, head x)) (group (str))
+statistics str = map (\x -> (genericLength x, head x)) (group (sort str))
 
 makeTree :: String -> HuffmanTree
 makeTree str = removeWeightsFromTree $ combineTrees $ makeSortedTree(str)
@@ -59,11 +59,11 @@ checkIfTreeContainsChar currentEncodingChar (HuffmanLeaf char) = (currentEncodin
 
 
 
-decode :: HuffmanTree -> [Integer] -> String
+--decode :: HuffmanTree -> [Integer] -> String
 decode tree bitStr = decodeHelper tree tree bitStr
 
 --decodeHelper :: HuffmanTree -> HuffmanTree -> String -> String
-decodeHelper startTree (HuffmanLeaf str) [] = str
+decodeHelper startTree (HuffmanLeaf str) [] = str:[]
 decodeHelper startTree (HuffmanLeaf str) bitStr = str : decodeHelper startTree startTree bitStr
 
 decodeHelper startTree (HuffmanBranch left right) (x:bitStrRest) =
