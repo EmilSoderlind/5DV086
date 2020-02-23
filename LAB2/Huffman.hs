@@ -2,13 +2,13 @@ module Huffman where
 
 import Data.List
 
-data HuffmanTree = HuffmanLeaf Char | HuffmanBranch HuffmanTree HuffmanTree deriving (Show)
+data Htree = Leaf Char | Branch Htree Htree deriving (Show)
 data WeightedTree = WeightedLeaf Integer Char | WeightedBranch Integer WeightedTree WeightedTree deriving (Show)
 
 statistics :: String -> [(Integer, Char)]
 statistics str = map (\x -> (genericLength x, head x)) (group (sort str))
 
-makeTree :: String -> HuffmanTree
+makeTree :: String -> Htree
 makeTree str = removeWeightsFromTree $ combineTrees $ makeSortedTree(str)
 
 makeTreeHelper :: String -> [WeightedTree]
@@ -32,41 +32,43 @@ combineTrees (f:[]) = f
 combineTrees (f:s:[]) = ((WeightedBranch (weightOfTree f + weightOfTree s) f s))
 combineTrees (f:s:rest) = combineTrees $ sortTreeList ((WeightedBranch (weightOfTree f + weightOfTree s) f s) : sortTreeList rest)
 
-removeWeightsFromTree (WeightedLeaf _ char) = HuffmanLeaf char
-removeWeightsFromTree (WeightedBranch _ w1 w2) = HuffmanBranch (removeWeightsFromTree w1) (removeWeightsFromTree w2)
+removeWeightsFromTree (WeightedLeaf _ char) = Leaf char
+removeWeightsFromTree (WeightedBranch _ w1 w2) = Branch (removeWeightsFromTree w1) (removeWeightsFromTree w2)
 
 
-encode :: String -> (HuffmanTree , [Integer])
+encode :: String -> (Htree , [Integer])
 encode str = ((makeTree str), (encodeString str (makeTree str)))
 
+encodeString :: String -> Htree -> [Integer]
+encodeString str (Leaf char) = replicate (length str) 0
 encodeString [] tree = []
 encodeString (x:xs) tree = encodeStringHelper x tree ++ encodeString xs tree
 
-encodeStringHelper currentEncodingChar (HuffmanBranch left right) = 
+encodeStringHelper currentEncodingChar (Branch left right) = 
     if ((checkIfTreeContainsChar currentEncodingChar left) == True)
         then 0 : encodeStringHelper currentEncodingChar left
         else 1 : encodeStringHelper currentEncodingChar right
 
-encodeStringHelper currentEncodingChar (HuffmanLeaf char) = [] 
+encodeStringHelper currentEncodingChar (Leaf char) = []
 
-checkIfTreeContainsChar searchChar (HuffmanBranch left right) =
+checkIfTreeContainsChar searchChar (Branch left right) =
     if (checkIfTreeContainsChar searchChar left)
         then True
         else checkIfTreeContainsChar searchChar right
 
-checkIfTreeContainsChar currentEncodingChar (HuffmanLeaf char) = (currentEncodingChar == char)
+checkIfTreeContainsChar currentEncodingChar (Leaf char) = (currentEncodingChar == char)
 
 
 
 
---decode :: HuffmanTree -> [Integer] -> String
+--decode :: Htree -> [Integer] -> String
 decode tree bitStr = decodeHelper tree tree bitStr
 
---decodeHelper :: HuffmanTree -> HuffmanTree -> String -> String
-decodeHelper startTree (HuffmanLeaf str) [] = str:[]
-decodeHelper startTree (HuffmanLeaf str) bitStr = str : decodeHelper startTree startTree bitStr
+--decodeHelper :: Htree -> Htree -> String -> String
+decodeHelper startTree (Leaf str) [] = str:[]
+decodeHelper startTree (Leaf str) bitStr = str : decodeHelper startTree startTree bitStr
 
-decodeHelper startTree (HuffmanBranch left right) (x:bitStrRest) =
+decodeHelper startTree (Branch left right) (x:bitStrRest) =
     if (x == 0)
         then decodeHelper startTree left bitStrRest
         else decodeHelper startTree right bitStrRest
