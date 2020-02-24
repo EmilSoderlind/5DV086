@@ -36,10 +36,11 @@ removeWeightsFromTree (WeightedLeaf _ char) = Leaf char
 removeWeightsFromTree (WeightedBranch _ w1 w2) = Branch (removeWeightsFromTree w1) (removeWeightsFromTree w2)
 
 
+
 encode :: String -> (Htree , [Integer])
+encode [] = (Leaf ' ', [])
 encode str = ((makeTree str), (encodeString str (makeTree str)))
 
-encodeString :: String -> Htree -> [Integer]
 encodeString str (Leaf char) = replicate (length str) 0
 encodeString [] tree = []
 encodeString (x:xs) tree = encodeStringHelper x tree ++ encodeString xs tree
@@ -61,11 +62,11 @@ checkIfTreeContainsChar currentEncodingChar (Leaf char) = (currentEncodingChar =
 
 
 
---decode :: Htree -> [Integer] -> String
+decode :: Htree -> [Integer] -> String
+decode (Leaf char) bitStr = replicate (length bitStr) char
 decode tree bitStr = decodeHelper tree tree bitStr
 
---decodeHelper :: Htree -> Htree -> String -> String
-decodeHelper startTree (Leaf str) [] = str:[]
+decodeHelper startTree (Leaf str) [] = [str]
 decodeHelper startTree (Leaf str) bitStr = str : decodeHelper startTree startTree bitStr
 
 decodeHelper startTree (Branch left right) (x:bitStrRest) =
