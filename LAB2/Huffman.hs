@@ -5,9 +5,11 @@ import Data.List
 data Htree = Leaf Char | Branch Htree Htree deriving (Show)
 data WeightedTree = WeightedLeaf Integer Char | WeightedBranch Integer WeightedTree WeightedTree deriving (Show)
 
+-- Returns list of tupples with number of occurency of each characher in the provided string.
 statistics :: String -> [(Integer, Char)]
 statistics str = map (\x -> (genericLength x, head x)) (group (sort str))
 
+-- Creates a huffman-tree for a given string.
 makeTree :: String -> Htree
 makeTree str = removeWeightsFromTree $ combineTrees $ makeSortedTree(str)
 
@@ -36,7 +38,7 @@ removeWeightsFromTree (WeightedLeaf _ char) = Leaf char
 removeWeightsFromTree (WeightedBranch _ w1 w2) = Branch (removeWeightsFromTree w1) (removeWeightsFromTree w2)
 
 
-
+-- Huffman encode a provided String. Returns the created huffman-tree and the huffman-encoding of the provided String.
 encode :: String -> (Htree , [Integer])
 encode [] = (Leaf ' ', [])
 encode str = ((makeTree str), (encodeString str (makeTree str)))
@@ -61,7 +63,7 @@ checkIfTreeContainsChar currentEncodingChar (Leaf char) = (currentEncodingChar =
 
 
 
-
+-- Decode a huffman-encoding given the code and the huffman-tree.
 decode :: Htree -> [Integer] -> String
 decode (Leaf char) bitStr = replicate (length bitStr) char
 decode tree bitStr = decodeHelper tree tree bitStr
