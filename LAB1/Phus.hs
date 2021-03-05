@@ -1,6 +1,5 @@
 module Phus where
 import Data.List
-import Register
 
 type ParkingInfo = (String,Bool,(Integer,Integer))
 type PTimeInfo = (String,(Integer,Integer))
@@ -23,7 +22,7 @@ summariseParkingTimeHelper currentCar (x:xs) =
   if not (entranceOfCar currentCar) -- Comparing the exit tupple -> Return 0
     then 0
     else 
-      if ((regOfCar currentCar) == regOfCar x) -- Found the matching Exit-Parking
+      if ((regOfCar currentCar) == regOfCar x) -- Foxund the matching Exit-Parking
       then ((((minutesParkingOfCar x) - (minutesParkingOfCar currentCar))))
       else summariseParkingTimeHelper currentCar xs
 
@@ -64,7 +63,6 @@ longestParkedCar (maxReg,maxParkTime) (x:xs) =
 minutesToTimeFormat :: (String, Integer) -> (String, (Integer, Integer))
 minutesToTimeFormat (reg, minutes) = (reg, ((minutes `div` 60), (((minutes `mod` 60)))))
 
---makeCarTuppleCorrectOfWorkingCarTimes :: [Parking] -> [(String, Integer)]
 fixTimeFormats day = [minutesToTimeFormat x | x <- (fixDuplicates (addSeveralVisits (workingCarTimes day)))]
 
 phusHelper day = (longestParkedCar ("",0) (fixDuplicates (addSeveralVisits (workingCarTimes day))) , fixTimeFormats day)
